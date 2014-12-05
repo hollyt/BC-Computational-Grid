@@ -13,3 +13,5 @@ Before running the script, make sure to enter the correct name, username, and pa
 For questions & more information:
 -----------------------------
 tancredi.holly@gmail.com
+
+https://sites.google.com/site/emiliogallicchiolab/research/research-blog/calculatingboincthroughputdata
