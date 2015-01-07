@@ -24,7 +24,7 @@ curr = db.cursor()
 
 # Get the date options
 dates = sys.argv[1:]
-if (len(items) < 2):
+if (len(dates) < 2):
 	print ('Please enter start date and end date.')
 	print ('Usage: ./client_analysis.py <YYYY/MM/DD> <YYYY/MM/DD>')
 	sys.exit(-1)

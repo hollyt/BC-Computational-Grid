@@ -27,7 +27,7 @@ completed = 5
 
 # Get the date options
 dates = sys.argv[1:]
-if (len(items) < 2):
+if (len(dates) < 2):
 	print ('Please enter start date and end date.')
 	print ('Usage: ./get_throughput_data.py <YYYY/MM/DD> <YYYY/MM/DD>')
 	sys.exit(-1)
