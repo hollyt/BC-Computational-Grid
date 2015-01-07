@@ -1,3 +1,5 @@
+# /usr/bin/python
+
 # This script retrieves the number of successfully completed jobs for each client on
 # your BOINC grid, for each day within a given time period
 # and prints to a .dat file (formatted for plotting with gnuplot)
