@@ -26,8 +26,14 @@ failed_outcomes = { 2 : 'COULDN\'T SEND' , 3 : 'COMPUTATION ERROR', 4 : 'NO REPL
 completed = 5
 
 # Get the date options
-start = str(sys.argv[1])
-end = str(sys.argv[2])
+dates = sys.argv[1:]
+if (len(items) < 2):
+	print ('Please enter start date and end date.')
+	print ('Usage: ./get_throughput_data.py <YYYY/MM/DD> <YYYY/MM/DD>')
+	sys.exit(-1)
+
+start = str(dates[0])
+end = str(dates[1])
 start_struct = time.strptime(start, '%Y/%m/%d')
 start_date = calendar.timegm(start_struct)
 end_struct = time.strptime(end, '%Y/%m/%d')
