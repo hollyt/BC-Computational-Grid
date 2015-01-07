@@ -16,16 +16,14 @@ from datetime import datetime, date
 #db = ''
 #db_user = ''
 #db_pw = ''
-#db = MySQLdb.connect(user=db_user, passwd=db_pw, db=db)
+db = MySQLdb.connect(user=db_user, passwd=db_pw, db=db)
 
 # Create cursor object to execute queries
 curr = db.cursor()
 
 # Results that are NOT a Success
 failed_outcomes = { 2 : 'COULDN\'T SEND' , 3 : 'COMPUTATION ERROR', 4 : 'NO REPLY', 5 : 'DIDN\'T NEED', 6 : 'VALIDATE ERROR', 7 : 'ABANDONED'}
-
 completed = 5
-success = 1
 
 # Get the date options
 start = str(sys.argv[1])
@@ -37,8 +35,10 @@ end_struct = time.strptime(end, '%Y/%m/%d')
 end_date = calendar.timegm(end_struct) + 86399
 
 # Create output files
-datafile = open('test.dat', 'a+')
-outputfile = open('test.out', 'a+')
+d = '/throughput_analysis/datafiles/' + time.strftime('%Y.%m.%d', time.gmtime(start_date)) + '-' + time.strftime('%Y.%m.%d', time.gmtime(end_date)) + '.dat' 
+o = '/throughput_analysis/outfiles/' + time.strftime('%Y.%m.%d', time.gmtime(start_date)) + '-' + time.strftime('%Y.%m.%d', time.gmtime(end_date)) + '.out'
+datafile = open(d, 'a+')
+outputfile = open(o, 'a+')
 
 # Query the database
 get_finished_jobs = 'SELECT outcome from result where server_state = {} and received_time <= {} and received_time >= {}'.format(completed, end_date, start_date)

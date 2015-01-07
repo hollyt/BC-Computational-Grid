@@ -32,7 +32,7 @@ end_struct = time.strptime(end,'%Y/%m/%d')
 end_date = calendar.timegm(end_struct) + 86399
 
 # Create output file
-d = 'datafiles/' + time.strftime('%Y.%m.%d', time.gmtime(start_date)) + '-' + time.strftime('%Y.%m.%d', time.gmtime(end_date)) + '.dat' 
+d = '/client_analysis/datafiles/' + time.strftime('%Y.%m.%d', time.gmtime(start_date)) + '-' + time.strftime('%Y.%m.%d', time.gmtime(end_date)) + '.dat' 
 datafile = open(d, 'a+')
 print ('#Date\tHost\tSuccessful Jobs', file = datafile)
 
