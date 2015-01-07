@@ -24,14 +24,14 @@ curr = db.cursor()
 # Get the date options
 start = str(sys.argv[1])
 end = str(sys.argv[2])
-start_struct = time.strptime(start, "%Y/%m/%d")
+start_struct = time.strptime(start, '%Y/%m/%d')
 start_date = calendar.timegm(start_struct)
-end_struct = time.strptime(end, "%Y/%m/%d")
+end_struct = time.strptime(end,'%Y/%m/%d')
 # Add seconds for end of day on end_date
 end_date = calendar.timegm(end_struct) + 86399
 
 # Create output file
-d = 'datafiles/' + time.strftime("%Y.%m.%d", time.gmtime(start_date)) + '-' + time.strftime("%Y.%m.%d", time.gmtime(end_date)) + '.dat' 
+d = 'datafiles/' + time.strftime('%Y.%m.%d', time.gmtime(start_date)) + '-' + time.strftime('%Y.%m.%d', time.gmtime(end_date)) + '.dat' 
 datafile = open(d, 'a+')
 print ('#Date\tHost\tSuccessful Jobs', file = datafile)
 
@@ -42,7 +42,7 @@ while start_of_day <= end_date:
 	num_success_jobs = 0
 	end_of_day = (start_of_day + 86399)
 	for host in range(1,482):
-		curr.execute("SELECT COUNT(*) from result where hostid = '%s' and server_state = '5' and outcome = '1' and received_time <= '%s' and received_time >= '%s'" % (host, end_of_day, start_of_day))
+		curr.execute('SELECT COUNT(*) from result where hostid = {} and server_state = "5" and outcome = "1" and received_time <= {} and received_time >= {}'.format(host, end_of_day, start_of_day))
 		data = curr.fetchone()
-		print (time.strftime('%Y/%m/%d', time.gmtime(start_of_day)) + '\t%d\t%d' % (host, data[0]), file = datafile)
+		print (time.strftime('%Y/%m/%d', time.gmtime(start_of_day)) + '\t{}\t{}'.format(host, data[0]), file = datafile)
 	start_of_day += 86400

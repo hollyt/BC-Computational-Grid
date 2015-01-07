@@ -10,10 +10,10 @@ import time
 from datetime import datetime, date
 
 # Connect to the boinc mySQL database
-db = ""
-db_user = ""
-db_pw = ""
-db = MySQLdb.connect(user=db_user, passwd=db_pw, db=db)
+#db = ''
+#db_user = ''
+#db_pw = ''
+#db = MySQLdb.connect(user=db_user, passwd=db_pw, db=db)
 
 # Create cursor object to execute queries
 curr = db.cursor()
@@ -27,9 +27,9 @@ success = 1
 # Get the date options
 start = str(sys.argv[1])
 end = str(sys.argv[2])
-start_struct = time.strptime(start, "%Y/%m/%d")
+start_struct = time.strptime(start, '%Y/%m/%d')
 start_date = calendar.timegm(start_struct)
-end_struct = time.strptime(end, "%Y/%m/%d")
+end_struct = time.strptime(end, '%Y/%m/%d')
 # Add seconds for end of day on end_date
 end_date = calendar.timegm(end_struct) + 86399
 
@@ -38,12 +38,12 @@ datafile = open('test.dat', 'a+')
 outputfile = open('test.out', 'a+')
 
 # Query the database
-get_finished_jobs = "SELECT outcome from result where server_state = '%s' and received_time <= %s and received_time >= %s" % (completed, end_date, start_date)
+get_finished_jobs = 'SELECT outcome from result where server_state = {} and received_time <= {} and received_time >= {}'.format(completed, end_date, start_date)
 curr.execute(get_finished_jobs)
 num_finished_jobs = curr.rowcount
 
 print ('BOINCIMPACT THROUGHPUT DATA: \n==========================', file = outputfile)
-print ('Completed jobs between %s and %s: %d' % (start, end, num_finished_jobs), file = outputfile)
+print ('Completed jobs between {} and {}: {}'.format(start, end, num_finished_jobs), file = outputfile)
 print ('#Date\tSuccess\tFailed', file = datafile)
 
 start_of_day = start_date
@@ -53,7 +53,7 @@ while start_of_day <= end_date:
 	num_success_jobs = 0
 	num_failed_jobs = 0
 	end_of_day = (start_of_day + 86399)
-	curr.execute("SELECT outcome from result where server_state = '%s' and received_time <= %s and received_time >= %s" % (completed, end_of_day, start_of_day))
+	curr.execute('SELECT outcome from result where server_state = {} and received_time <= {} and received_time >= {}'.format(completed, end_of_day, start_of_day))
 	for outcome in curr:
 		#outcome is returned as a tuple
 		if (outcome[0] == 1):
@@ -63,16 +63,16 @@ while start_of_day <= end_date:
 			failed_outcomes_count[(outcome[0]-2)] += 1
 
 	# Formatting from epoch time to human readable time
-	print (time.strftime("%Y/%m/%d", time.gmtime(start_of_day)) + ': %d success %d failed' % (num_success_jobs, num_failed_jobs), file = outputfile)
+	print (time.strftime('%Y/%m/%d', time.gmtime(start_of_day)) + ': {} success {} failed'.format(num_success_jobs, num_failed_jobs), file = outputfile)
 
 	# Print to .dat file
-	print (time.strftime("%Y/%m/%d", time.gmtime(start_of_day)) + '\t%d\t%d' % (num_success_jobs, num_failed_jobs), file = datafile)	
+	print (time.strftime('%Y/%m/%d', time.gmtime(start_of_day)) + '\t{}\t{}'.format(num_success_jobs, num_failed_jobs), file = datafile)	
 	
 	start_of_day += 86400
 
 print ('\nREASONS FOR FAILURE: \n=========================', file = outputfile)
 for outcome in failed_outcomes: 
-	print ('%s: %d' % (failed_outcomes.get(outcome), failed_outcomes_count[(outcome-2)]), file = outputfile)
+	print ('{}: {}'.format(failed_outcomes.get(outcome), failed_outcomes_count[(outcome-2)]), file = outputfile)
 
 # Disconnect from surver
 db.close()
