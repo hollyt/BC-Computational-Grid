@@ -4,6 +4,7 @@
 # your BOINC grid, for each day within a given time period
 # and prints to a .dat file (formatted for plotting with gnuplot)
 # Correct usage is: client_analysis.py <(start date)YYYY/MM/DD> <(end date)YYYY/MM/DD>
+# Ex: ./client_analysis.py 2014/12/01 2015/01/01
 
 from __future__ import print_function
 from datetime import datetime, date

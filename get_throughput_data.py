@@ -1,6 +1,9 @@
+#! /usr/bin/python
+
 # This script retrieves BOINC throughput data from the mySQL server
-# It prints 2 files - .dat (formatted for plotting with gnuplot) and .out (human readable output
-# Correct usage is: get_throughput_data.py <start date YYYY/MM/DD> <end date YYYY/MM/DD>
+# It prints 2 files - .dat (formatted for plotting with gnuplot) and .out (human readable output)
+# Correct usage is: get_throughput_data.py <(start date)YYYY/MM/DD> <(end date)YYYY/MM/DD>
+# Ex: ./get_throughput_data.py 2014/12/01 2015/01/01
 
 from __future__ import print_function
 import calendar
