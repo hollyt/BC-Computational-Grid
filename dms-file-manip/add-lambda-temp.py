@@ -57,7 +57,7 @@ for filename in glob.glob(os.path.join(path, '*.out')):
 	job = get_temp_lam(filename)
 		
 	rcpt = default_path + '/b_rcpt_{}.dms'.format(job.num)
-	lig = defualt_path '/b_lig_{}.dms'.format(job.num)
+	lig = defualt_path + '/b_lig_{}.dms'.format(job.num)
 
 	# Connect to .dms file
 	rcpt_conn = sqlite3.connect(rcpt)
@@ -66,9 +66,9 @@ for filename in glob.glob(os.path.join(path, '*.out')):
 	c_lig = lig_conn.cursor()
 
 	# Create a new table - Properties for each .dms file and add 2 columns - temp and lambda
+	values = (int(job.temp), float(job.lam))
 	create = 'CREATE TABLE Properties(Id INT, TempK INT, Lambda REAL)'
 	insert = 'INSERT INTO Properties VALUES(1,%d,%d)' % (int(job.temp), float(job.lam))
-
 	print ('Adding to {}...'.format(rcpt))
 	c_rcpt.execute(create)
 	c_rcpt.execute(insert)
