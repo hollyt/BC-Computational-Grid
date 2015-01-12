@@ -79,10 +79,9 @@ for filename in glob.glob(os.path.join(path, '*.out')):
 		c_lig.execute(insert)
 		lig_conn.commit()
 
-	except Exception as e:
+	except Exception:
 		rcpt_conn.rollback()
 		lig_conn.rollback()
-		raise e
 
 	finally:
 		rcpt_conn.close()
