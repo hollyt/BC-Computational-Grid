@@ -65,10 +65,10 @@ for filename in glob.glob(os.path.join(path, '*.out')):
 	c_rcpt = rcpt_conn.cursor()
 	c_lig = lig_conn.cursor()
 
-	# Create a new table - Properties for each .dms file and add 2 columns - temp and lambda
+	# Create a new table - properties for each .dms file and add 2 columns - temp and lambda
 	values = (int(job.temp), float(job.lam))
-	create = 'CREATE TABLE Properties(Id INT, TempK INT, Lambda REAL)'
-	insert = 'INSERT INTO Properties VALUES(1,%d,%d)' % (int(job.temp), float(job.lam))
+	create = 'CREATE TABLE properties(Id INT, TempK INT, Lambda REAL)'
+	insert = 'INSERT INTO properties VALUES(1,%d,%d)' % (int(job.temp), float(job.lam))
 	print ('Adding to {}...'.format(rcpt))
 	c_rcpt.execute(create)
 	c_rcpt.execute(insert)
