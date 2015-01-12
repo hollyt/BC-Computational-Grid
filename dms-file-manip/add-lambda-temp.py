@@ -66,25 +66,27 @@ for filename in glob.glob(os.path.join(path, '*.out')):
 		c_rcpt = rcpt_conn.cursor()
 		c_lig = lig_conn.cursor()
 
-		# Create a new table - properties for each .dms file and add 2 columns - temp and lambda
-		values = (int(job.temp), float(job.lam))
+		# Create a new table - properties - for each .dms file and add 2 columns - temp and lambda
+		values = (1, int(job.temp), float(job.lam))
 		create = 'CREATE TABLE properties(Id INT, TempK INT, Lambda REAL)'
-		insert = 'INSERT INTO properties VALUES(1,%d,%d)' % (int(job.temp), float(job.lam))
-		print ('Adding to {}...'.format(rcpt))
+		
 		c_rcpt.execute(create)
-		c_rcpt.execute(insert)
+		c_rcpt.execute('INSERT INTO properties VALUES(?,?,?)', values)
 		rcpt_conn.commit()
-		print ('Adding to {}...\n'.format(lig))
-		c_lig.execute(create)
-		c_lig.execute(insert)
-		lig_conn.commit()
+		print ('Adding to {}...'.format(rcpt))
 
-	except Exception:
+		c_lig.execute(create)
+		c_lig.execute('INSERT INTO properties VALUES(?,?,?)', values)
+		lig_conn.commit()
+		print ('Adding to {}...\n'.format(lig))
+
+	except Exception as e:
+		print type(e)
 		rcpt_conn.rollback()
 		lig_conn.rollback()
 
 	finally:
 		rcpt_conn.close()
 		lig_conn.close()
-	
+		sys.exit(-1)
 
