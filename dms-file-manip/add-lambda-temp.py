@@ -80,7 +80,7 @@ for filename in glob.glob(os.path.join(path, '*.out')):
 		lig_conn.commit()
 		print ('Adding to {}...\n'.format(lig))
 
-	except Exception as e:
+	except sqlite3.DatabseError as e:
 		print type(e)
 		rcpt_conn.rollback()
 		lig_conn.rollback()
