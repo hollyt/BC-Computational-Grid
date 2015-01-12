@@ -60,25 +60,32 @@ for filename in glob.glob(os.path.join(path, '*.out')):
 	lig = defualt_path + '/b_lig_{}.dms'.format(job.num)
 
 	# Connect to .dms file
-	rcpt_conn = sqlite3.connect(rcpt)
-	lig_conn = sqlite3.connect(lig)
-	c_rcpt = rcpt_conn.cursor()
-	c_lig = lig_conn.cursor()
+	try:
+		rcpt_conn = sqlite3.connect(rcpt)
+		lig_conn = sqlite3.connect(lig)
+		c_rcpt = rcpt_conn.cursor()
+		c_lig = lig_conn.cursor()
 
-	# Create a new table - properties for each .dms file and add 2 columns - temp and lambda
-	values = (int(job.temp), float(job.lam))
-	create = 'CREATE TABLE properties(Id INT, TempK INT, Lambda REAL)'
-	insert = 'INSERT INTO properties VALUES(1,%d,%d)' % (int(job.temp), float(job.lam))
-	print ('Adding to {}...'.format(rcpt))
-	c_rcpt.execute(create)
-	c_rcpt.execute(insert)
-	rcpt_conn.commit()
-	print ('Adding to {}...\n'.format(lig))
-	c_lig.execute(create)
-	c_lig.execute(insert)
-	lig_conn.commit()
+		# Create a new table - properties for each .dms file and add 2 columns - temp and lambda
+		values = (int(job.temp), float(job.lam))
+		create = 'CREATE TABLE properties(Id INT, TempK INT, Lambda REAL)'
+		insert = 'INSERT INTO properties VALUES(1,%d,%d)' % (int(job.temp), float(job.lam))
+		print ('Adding to {}...'.format(rcpt))
+		c_rcpt.execute(create)
+		c_rcpt.execute(insert)
+		rcpt_conn.commit()
+		print ('Adding to {}...\n'.format(lig))
+		c_lig.execute(create)
+		c_lig.execute(insert)
+		lig_conn.commit()
 
-	rcpt_conn.close()
-	lig_conn.close()
+	except Exception as e:
+		rcpt_conn.rollback()
+		lig_conn.rollback()
+		raise e
+
+	finally:
+		rcpt_conn.close()
+		lig_conn.close()
 	
 
