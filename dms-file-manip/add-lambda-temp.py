@@ -19,7 +19,7 @@ class Job:
 		self.lam = lam
 
 def get_temp_lam(filename):
-	temp_pattern = re.compile('Target temperature (K) = \d\d\d')
+	temp_pattern = re.compile('Target temperature \(K\) = \d\d\d')
 	lam_pattern = re.compile('lambda \d\.\d')
 	name_pattern = re.compile('b_\d{1,3}')
 	num_pattern = re.compile('\d{1,3}')
