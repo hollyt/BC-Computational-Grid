@@ -20,7 +20,7 @@ class Job:
 
 def get_temp_lam(filename):
 	temp_pattern = re.compile('Target temperature \(K\) = \d\d\d')
-	lam_pattern = re.compile('lambda \d\.\d')
+	lam_pattern = re.compile('lambda \d\.\d*')
 	name_pattern = re.compile('b_\d{1,3}')
 	num_pattern = re.compile('\d{1,3}')
 	
@@ -33,7 +33,7 @@ def get_temp_lam(filename):
 		temp = (re.search('\d\d\d', t.group(0))).group(0)
 	l = re.search(lam_pattern, text)
 	if l:
-		lam = (re.search('\d\.\d', l.group(0))).group(0)
+		lam = (re.search('\d\.\d*', l.group(0))).group(0)
 	na = re.search(name_pattern, filename)
 	if na:
 		name = na.group(0)
