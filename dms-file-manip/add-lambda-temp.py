@@ -84,9 +84,9 @@ for filename in glob.glob(os.path.join(path, '*.out')):
 		print type(e)
 		rcpt_conn.rollback()
 		lig_conn.rollback()
+		sys.exit(-1)
 
 	finally:
 		rcpt_conn.close()
 		lig_conn.close()
-		sys.exit(-1)
 
