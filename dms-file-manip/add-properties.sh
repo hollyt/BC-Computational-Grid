@@ -5,5 +5,5 @@
 echo "Starting..."
 for ((i = 1; i <= 143; i++))
 do
-	./add-lambda-temp.py r$i
+	./add-properties.py r$i
 done
