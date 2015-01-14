@@ -44,7 +44,7 @@ def get_temp_lam(filename):
 	newjob = Job(name, num, temp, lam)
 	return newjob
 
-# Get the filename as command line argument
+# Get the directory as command line argument
 repname = sys.argv[1:]
 if (len(repname) < 1):
 	print ('Please enter a repname.')
