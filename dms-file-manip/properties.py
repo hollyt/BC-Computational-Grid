@@ -31,13 +31,14 @@ class properties:
 			self._cursor.execute(create)
 			self._cursor.execute('INSERT INTO properties VALUES(?,?,?)', values)
 			self._connection.commit()
+			return true
 			
 		except sqlite3.DatabaseError as e:
 			print type(e)
 			print 'Error adding data to properties.'
 			self._connection.rollback()
 			self._connection.close()
-			sys.exit(-1)
+			return false
 	
 	def get_properties(self):
 		self._cursor.execute('SELECT * from properties')
