@@ -1,49 +1,56 @@
 #! usr/bin/python
 
 # properties class - creates a new table "properties" for .dms files
-# and stores/retrieves relevant information (temperature (K), lambda) there.
+# and stores/retrieves relevant information (temperature, lambda, etc.) there.
 
 import sqlite3
 import sys
 
 class properties:
-	def __init__(self, filename, temp, lam):
+	def __init__(self, filename, property, value):
 		self._filename = filename
-		self._basename, __, __ = filename.rpartition('.')
-		self._temp = temp
-		self._lam = lam
+		self._property = str(property)
+		self._value = value
+		if type(value) is int:
+			self._type = 'INTEGER'
+		elif type(value) is float:
+			self._type = 'REAL'
+		else:
+			self._type = 'TEXT'
 
 	def connect(self):
 		try:
 			self._connection = sqlite3.connect(self._filename)
+			self._connection.row_factory = sqlite3.Row
 			self._cursor = self._connection.cursor()
-
 		except sqlite3.DatabaseError as e:
 			print type(e)
 			print 'Cannot connect to .dms file.'
 			sys.exit(-1)
 		
 	def add_properties(self):
-		create = 'CREATE TABLE properties (Id INT, TempK INT, Lambda REAL)'
-		values = (1, int(self._temp), float(self._lam))
-
+		self._cursor.execute('CREATE TABLE IF NOT EXISTS properties (id INTEGER PRIMARY KEY)')
+		self._cursor.execute('INSERT OR IGNORE INTO properties(id) values(1)')
 		try:
-			self._cursor.execute(create)
-			self._cursor.execute('INSERT INTO properties VALUES(?,?,?)', values)
+			self._cursor.execute('UPDATE properties SET {}={} WHERE id=1'.format(self._property, self._value,))
+		except sqlite3.OperationalError as e:
+			try:
+				self._cursor.execute('ALTER TABLE properties ADD COLUMN {}'.format(self._property))
+				self._cursor.execute('UPDATE properties SET {}={} WHERE id=1'.format(self._property, self._value,))
+			except sqlite3.DatabaseError:
+				return False
+		finally:
 			self._connection.commit()
-			return True
+		return True
 			
-		except sqlite3.DatabaseError as e:
-			print type(e)
-			print 'Error adding data to properties.'
-			self._connection.rollback()
-			self._connection.close()
-			return False
 	
 	def get_properties(self):
 		self._cursor.execute('SELECT * from properties')
-		# Returns a list of all rows of query results (id,temp,lam)
-		return self._cursor.fetchall()
-	
+		# Returns a dictionary of all query results
+		self._connection.row_factory = sqlite3.Row
+		self._cursor = conn.cursor()
+		row = c.fetchone()
+		return row.keys()
+
 	def __exit__(self):
 		self._connection.close()
