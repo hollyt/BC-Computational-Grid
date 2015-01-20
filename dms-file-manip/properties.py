@@ -21,11 +21,10 @@ class properties:
 	def connect(self):
 		try:
 			self._connection = sqlite3.connect(self._filename)
-			self._connection.row_factory = sqlite3.Row
 			self._cursor = self._connection.cursor()
 		except sqlite3.DatabaseError as e:
 			print type(e)
-			print 'Cannot connect to .dms file.'
+			print 'Could not connect to .dms file.'
 			sys.exit(-1)
 		
 	def add_properties(self):
@@ -43,14 +42,21 @@ class properties:
 			self._connection.commit()
 		return True
 			
-	
-	def get_properties(self):
-		self._cursor.execute('SELECT * from properties')
-		# Returns a dictionary of all query results
-		self._connection.row_factory = sqlite3.Row
-		self._cursor = conn.cursor()
-		row = c.fetchone()
-		return row.keys()
+	@staticmethod
+	def get_properties(filename):
+		try:	
+			connection = sqlite3.connect(filename)
+			connection.row_factory = sqlite3.Row
+			cursor = connection.cursor()
+			cursor.execute('SELECT * from properties')
+			# Returns a dictionary of all query results
+			row = cursor.fetchone()
+			return row
+
+		except sqlite3.DatabaseError as e:
+			print type(e)
+			print 'Could not connect to .dms file.'
+			sys.exit(-1)
 
 	def __exit__(self):
 		self._connection.close()
