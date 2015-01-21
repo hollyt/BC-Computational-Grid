@@ -1,5 +1,10 @@
 #! /usr/bin/python
 
+# This program retrieves the lambda and temperature from a .dms file and
+# prints the information to the screen for every file in a given directory.
+# This is meant as an example of the get_properties() method from the properties class.
+# Usage: ./get_properties.py <directory>
+
 from __future__ import print_function
 import glob
 import os

@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# This program retrieves the lambda and temperature from an output file
+# and adds them to a new table (properties) in each corresponding
+# .dms file, for every file in a given directory.
+# Usage: ./add_properties.py <directory>
+
 from __future__ import print_function
 import glob
 import os
