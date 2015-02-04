@@ -48,8 +48,9 @@ def get_properties(filename):
 
 # Get the directory as command line argument
 repname = sys.argv[1:]
-if (len(repname) < 1):
+if (len(repname < 1):
 	print ('Please enter a repname.')
+	print ('Usage: ./add_properties.py <directory>')
 	sys.exit(-1)
 
 path = './{}'.format(repname[0])

@@ -16,6 +16,7 @@ import sys
 repname = sys.argv[1:]
 if (len(repname) < 1):
 	print ('Please enter a repname.')
+	print ('Usage: ./get_properties.py <directory>')
 	sys.exit(-1)
 
 path = './{}'.format(repname[0])
