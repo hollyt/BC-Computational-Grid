@@ -110,8 +110,9 @@ def main():
 	print('LIG ATOMS BEFORE ROTATION')
 	for entry in lig_atoms:
 		print('{}:{}'.format(entry,lig_atoms.get(entry)))
-	#for entry in rcpt_atoms:
-		#print('{}:{}'.fpormat(entry,rcpt_atoms.get(entry)))
+	print('RCPT ATOMS')
+	for entry in rcpt_atoms:
+		print('{}:{}'.fpormat(entry,rcpt_atoms.get(entry)))
 
 	# Rotate the ligand randomly
 	rotate(lig_atoms)
@@ -134,7 +135,6 @@ def main():
 	for entry in temp:
 		print('{}:{}'.format(entry,temp.get(entry)))
 
-	rcpt_atoms = c_rcpt.fetchall()
 	# Find the center of mass of the ligand
 	center_mass_lig = center_of_mass(lig_atoms)
  	# Find the center of mass of the receptor
