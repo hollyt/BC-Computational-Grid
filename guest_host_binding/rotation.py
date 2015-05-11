@@ -11,9 +11,9 @@ def center_of_mass(atoms):
 	z_total = 0
 	atom_count = 0
 	for atom in atoms:
-		x_total += atom[0]
-		y_total += atom[1]
-		z_total += atom[2]
+		x_total += atoms.get(atom)[0]
+		y_total += atoms.get(atom)[1]
+		z_total += atoms.get(atoms)[2]
 		atom_count += 1
 	return ((x_total/atom_count),(y_total/atom_count),(z_total/atom_count))
 
@@ -50,13 +50,41 @@ def rotate(atoms):
 
 	# Perform affinity transformation - multiply Rotation matrix by every atom
 	atom_prime = []
-	
-	# TO DO: This part...
-	
+	for atom in atoms:
+		atom_prime.append(multiply(R,atoms.get(atom)))
+		
 	return atom_prime
 						
 
+def multiple(rotation_matrix,coordinates):
+	atom_prime = [0,0,0]
+	atom_prime[0] = (rotation_matrix[0][0] * coordinates[0]) + (rotation_matrix[0][1] * coordinates[0]) + (rotation_matrix[0][2] * coordinates[0])
+	atom_prime[1] = (rotation_matrix[1][0] * coordinates[1]) + (rotation_matrix[1][1] * coordinates[1]) + (rotation_matrix[1][2] * coordinates[1])
+	atom_prime[2] = (rotation_matrix[2][0] * coordinates[2]) + (rotation_matrix[2][1] * coordinates[2]) + (rotation_matrix[2][2] *  coordinates[2])
+	return (atom_prime[0],atom_prime[1],atom_prime[2])
+
+
+def translate(center_mass_lig,center_mass_rcpt):
+	# start with (0,0,0) to test this
+	# radius in Angstroms
+	r = 8.0
+	neg_r = -1.0 * 8
+
+	# Generate a random point within the cube and check if it's in the sphere
+	# http://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere
+	# http://www.gamedev.net/topic/95637-random-point-within-a-sphere/
+	while True:
+		x = random.uniform(neg_r,r)
+		y = random.uniform(neg_r,r)
+		z = random.uniform(neg_r,r)
+		if (x**2 + y**2 + z**2 > r**2):
+			break
+	return (x,y,z)
+
 def main():
+	# key = atom id; value = tuple of (x,y,z) coordinates
+	lig_atoms = {}
+	rcpt_atoms = {}
 
 	# stuff you need to do to connect to the sqlite database ~>
 	rcpt_conn = sqlite3.connect("""path/to/rcpt/file.dms""")
@@ -64,19 +92,58 @@ def main():
 	c_rcpt = rcpt_conn.cursor()
 	c_lig = lig_conn.cursor()
 
-	# get the atoms
-	c_lig.execute('SELECT x, y, z FROM particle')
+	# get the atoms in tuples of 3
+	c_lig.execute('SELECT i_i_internal_atom_index, x, y, z FROM particle')
  	lig_atoms = c_lig.fetchall()
-			
-	# The atoms are in tuples of 3
+	c_rcpt.execute('SELECT i_i_internal_atom_index, x, y, z FROM particle')
+	rcpt = c_rcpt.fetchall()
+	
+	# Create a dictionary atom id - tuple of coordinates so the correct coordinates
+	# can be updated later
+	for atom in lig:
+		lig_atoms[atom[0]] = (atom[1],atom[2],atom[3])
+	for atom in rcpt:
+		rcpt_atoms[atom[0]] = (atom[1],atom[2],atom[3])
+
+	# TESTING
+	# print lig atoms before rotation to compare after rotation
+	print('LIG ATOMS BEFORE ROTATION')
+	for entry in lig_atoms:
+		print('{}:{}'.format(entry,lig_atoms.get(entry)))
+	#for entry in rcpt_atoms:
+		#print('{}:{}'.fpormat(entry,rcpt_atoms.get(entry)))
 
 	# Rotate the ligand randomly
 	rotate(lig_atoms)
 
+	# Update the coordinate values
+	count = 1
+	for atom in rotated:
+		c_lig.execute('UPDATE particle SET x = {}, y = {}, z = {} WHERE i_i_internal_atom_index = {}'.format(atom[0],atom[1],atom[2],count))
+		count += 1
+
+	# Print lig atoms after rotation - did it work?
+	c_lig.execute('SELECT i_i_internal_atom_index, x, y, z FROM particle')
+	new_atoms = c_lig.fetchall()
+
+	# just testing
+	temp = {}
+	for atom in new_atoms:
+		temp[atom[0]] = (atom[1],atom[2],atom[3])
+	print('\nLIG ATOMS AFTER ROTATION')
+	for entry in temp:
+		print('{}:{}'.format(entry,temp.get(entry)))
+
+	rcpt_atoms = c_rcpt.fetchall()
 	# Find the center of mass of the ligand
 	center_mass_lig = center_of_mass(lig_atoms)
- 	print(center_mass_lig)
-	
+ 	# Find the center of mass of the receptor
+	center_mass_rcpt = center_of_mass(rcpt_atoms)
+
+	# Translate to a random space to bind to the receptor
+	point = translate(center_mass_lig,center_mass_rcpt)
+	# TEST
+	print(point)
 
 if __name__ == '__main__':
 	main()
