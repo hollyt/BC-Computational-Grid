@@ -122,7 +122,7 @@ def main():
 	for atom in rotated:
 		c_lig.execute('UPDATE particle SET x = {}, y = {}, z = {} WHERE i_i_internal_atom_index = {}'.format(atom[0],atom[1],atom[2],count))
 		count += 1
-	c_lig.commit()
+	lig_conn.commit()
 
 	# Print lig atoms after rotation - did it work?
 	c_lig.execute('SELECT i_i_internal_atom_index, x, y, z FROM particle')
@@ -146,8 +146,8 @@ def main():
 	# TEST
 	print(point)
 
-	c_lig.close()
-	c_rcpt.close()
+	lig_conn.close()
+	rcpt_conn.close()
 
 if __name__ == '__main__':
 	main()
