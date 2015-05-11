@@ -110,9 +110,9 @@ def main():
 	print('LIG ATOMS BEFORE ROTATION')
 	for entry in lig_atoms:
 		print('{}:{}'.format(entry,lig_atoms.get(entry)))
-	print('RCPT ATOMS')
-	for entry in rcpt_atoms:
-		print('{}:{}'.fpormat(entry,rcpt_atoms.get(entry)))
+	#print('RCPT ATOMS')
+	#for entry in rcpt_atoms:
+		#print('{}:{}'.fpormat(entry,rcpt_atoms.get(entry)))
 
 	# Rotate the ligand randomly
 	rotate(lig_atoms)
@@ -122,6 +122,7 @@ def main():
 	for atom in rotated:
 		c_lig.execute('UPDATE particle SET x = {}, y = {}, z = {} WHERE i_i_internal_atom_index = {}'.format(atom[0],atom[1],atom[2],count))
 		count += 1
+	c_lig.commit()
 
 	# Print lig atoms after rotation - did it work?
 	c_lig.execute('SELECT i_i_internal_atom_index, x, y, z FROM particle')
@@ -144,6 +145,9 @@ def main():
 	point = translate(center_mass_lig,center_mass_rcpt)
 	# TEST
 	print(point)
+
+	c_lig.close()
+	c_rcpt.close()
 
 if __name__ == '__main__':
 	main()
