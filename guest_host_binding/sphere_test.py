@@ -11,7 +11,7 @@ import sqlite3
 def plot_point():
 	# radius
 	r = 1
-	lat_angle = random.uniform(0,360)
+	lat_angle = random.uniform(0,math.pi)
 	# Epsilon = cos(x)
 	cosx = random.uniform(-1,1)
 	z = r*cosx
