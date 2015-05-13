@@ -20,24 +20,27 @@ def center_of_mass(atoms):
 def pick_points():
 	# radius
 	r = 1
-	# Latitude angle is random # between 0 - 360
-	lat_angle = random.uniform(0,math.pi)
-	# epsilon = cos(x)
-	cosx = random.uniform(-1,1)
-	# z coordinate
-	z = r*cosx
-	
-	# sin(x) = +/- sqrt(1 - cos^2(x))
-	sinx = math.sqrt(1 - cosx**2)
-	# Randomly choose -1 or 1 for the +/- part of previous equation
-	seq = [-1,1]
-	sign = random.choice(seq)
-	sinx = sign * sinx
+	while True:
+		# Latitude angle is random # between 0 - 360
+		lat_angle = random.uniform(0,math.pi)
+		# epsilon = cos(x)
+		cosx = random.uniform(-1,1)
+		# z coordinate
+		z = r*cosx
+		
+		# sin(x) = +/- sqrt(1 - cos^2(x))
+		sinx = math.sqrt(1 - math.pow(cosx,2))
+		# Randomly choose -1 or 1 for the +/- part of previous equation
+		seq = [-1,1]
+		sign = random.choice(seq)
+		sinx = sign * sinx
 
-	# formulas for x & y coordinates
-	y = r * sinx * math.sin(lat_angle)
-	x = r * sinx * math.cos(lat_angle)
+		# formulas for x & y coordinates
+		y = r * sinx * math.sin(lat_angle)
+		x = r * sinx * math.cos(lat_angle)
 
+		if (math.pow(x,2) + math.pow(y,2) + math.pow(z,2) == 1):
+			break
 	return(x,y,z)
 
 # x is the angle
@@ -93,7 +96,7 @@ def translate(atoms):
 		x = random.uniform(neg_r,r)
 		y = random.uniform(neg_r,r)
 		z = random.uniform(neg_r,r)
-		if (x**2 + y**2 + z**2 > r**2):
+		if (math.pow(x,2) + math.pow(y,2) + math.pow(z,2) > math.pow(r,2)):
 			break
 	atom_prime = []
 
