@@ -17,7 +17,7 @@ def plot_point():
 	z = r*cosx
 	
 	# sin(x) = +- sqrt(1 - cos^2(x))
-	sinx = math.sqrt(1 - cosx**2)
+	sinx = math.sqrt(1 - pow(cosx,2))
 	# Randomly choose -1 or 1 for the +- part of previous equation
 	seq = [-1,1]
 	sign = random.choice(seq)
