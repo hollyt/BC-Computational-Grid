@@ -4,6 +4,7 @@ from __future__ import print_function
 import math
 import random
 import sqlite3
+import sys
 
 def center_of_mass(atoms):
 	x_total = 0
@@ -38,13 +39,14 @@ def pick_points():
 		# formulas for x & y coordinates
 		y = r * sinx * math.sin(lat_angle)
 		x = r * sinx * math.cos(lat_angle)
-
+		
 		if (math.pow(x,2) + math.pow(y,2) + math.pow(z,2) == 1):
 			break
 	return(x,y,z)
 
 # x is the angle
 def rotate(atoms,center_mass_lig):
+	# DEBUGGING
 	ux, uy, uz = pick_points()
 	# x is theta
 	x = random.uniform(0,2*math.pi)
@@ -64,7 +66,7 @@ def rotate(atoms,center_mass_lig):
 
 	for atom in atoms:
 		atom_prime.append(multiply(R,atoms.get(atom)))
-
+	
 	return atom_prime
 
 def multiply(rotation_matrix,coordinates):
@@ -72,6 +74,7 @@ def multiply(rotation_matrix,coordinates):
 	atom_prime[0] = (rotation_matrix[0][0] * coordinates[0]) + (rotation_matrix[0][1] * coordinates[1]) + (rotation_matrix[0][2] * coordinates[2])
 	atom_prime[1] = (rotation_matrix[1][0] * coordinates[0]) + (rotation_matrix[1][1] * coordinates[1]) + (rotation_matrix[1][2] * coordinates[2])
 	atom_prime[2] = (rotation_matrix[2][0] * coordinates[0]) + (rotation_matrix[2][1] * coordinates[1]) + (rotation_matrix[2][2] * coordinates[2])
+	
 	return (atom_prime[0],atom_prime[1],atom_prime[2])
 
 def add(translate_coordinates,coordinates):
@@ -81,30 +84,39 @@ def add(translate_coordinates,coordinates):
 	atom_prime[2] = translate_coordinates[2] + coordinates[2]
 	return (atom_prime[0],atom_prime[1],atom_prime[2])
 				
-def translate(atoms):
-	# start with (0,0,0) to test this
+def translate(atoms,center_mass_rcpt,radius):
 	# radius in Angstroms
-	r = 8.0
-	neg_r = -1.0 * 8
-	# create a cube around the receptor
-	#cube = [(0,0,0), (1,0,0), (1,1,0), (0,1,0), (0,0,1), (1,0,1), (1,1,1), (0,1,1)]
+	r = radius
+	neg_r = -1.0 * r
 
 	# Generate a random point within the cube and check if it's in the sphere
-	# http://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere
 	# http://www.gamedev.net/topic/95637-random-point-within-a-sphere/
 	while True:
 		x = random.uniform(neg_r,r)
 		y = random.uniform(neg_r,r)
 		z = random.uniform(neg_r,r)
-		if (math.pow(x,2) + math.pow(y,2) + math.pow(z,2) > math.pow(r,2)):
+		if (x**2 + y**2 + z**2 > r**2):
 			break
+	x += center_mass_rcpt[0]
+	y += center_mass_rcpt[1]
+	z += center_mass_rcpt[2]
+
 	atom_prime = []
 
 	for atom in atoms:
-		atom_prime.append(add((x,y,z),atoms.get(atom)))
+		atom_prime.append(add((x,y,z),atom))
 
 	return atom_prime	
 def main():
+	# process command line arguments
+	args = sys.argv[1:]
+	if (len(args) < 3):
+		print('USAGE: rotate_translate.py <rcpt.dms> <lig.dms> <radius>')
+		sys.exit(-1)
+
+	rcpt_file,lig_file,radius = args
+
+
 	# key = atom id; value = list of (x,y,z) coordinates
 	# list rather than tuple becuase we need to subtract the center of mass
 	# from every atom later
@@ -112,8 +124,8 @@ def main():
 	rcpt_atoms = {}
 	
 	# stuff you need to do to connect to the sqlite database ~>
-	rcpt_conn = sqlite3.connect('''path/to/your/rcpt.dms''')
-	lig_conn = sqlite3.connect('''path/to/your/lig.dms''')
+	rcpt_conn = sqlite3.connect(rcpt_file)
+	lig_conn = sqlite3.connect(lig_file)
 	c_rcpt = rcpt_conn.cursor()
 	c_lig = lig_conn.cursor()
 
@@ -131,24 +143,19 @@ def main():
 		rcpt_atoms[atom[0]] = [atom[1],atom[2],atom[3]]
 
 	# TESTING
-	# print lig atoms before rotation to compare after rotation
-	print('LIG ATOMS BEFORE ROTATION')
+	# print lig atoms before rotation & translation to compare after rotation & translation
+	print('LIG ATOMS BEFORE ROTATION & TRANSLATION')
 	for entry in lig_atoms:
 		print('{}:{}'.format(entry,lig_atoms.get(entry)))
-	#print('RCPT ATOMS:')	
-	#for entry in rcpt_atoms:
-		#print('{}:{}'.format(entry,rcpt_atoms.get(entry)))
-
 
 	# find the centers of mass
 	center_mass_lig = center_of_mass(lig_atoms)
 	center_mass_rcpt = center_of_mass(rcpt_atoms)
 	
-	# Rotate the ligand randomly
+	# Rotate & translate the ligand randomly
 	rotated = rotate(lig_atoms, center_mass_lig)
-	new = translate(lig_atoms)
-	# TO DO: translate ligand to a random place
-		
+	new = translate(rotated,center_mass_rcpt,radius)
+			
 	# Update the coordinate values
 	count = 1
 	for atom in new:
@@ -156,7 +163,7 @@ def main():
 		count += 1
 	lig_conn.commit()
 
-	# Print lig atoms after rotation - did it work?
+	# Print lig atoms after rotation & translation
 	c_lig.execute('SELECT i_i_internal_atom_index, x, y, z FROM particle')
 	new_atoms = c_lig.fetchall()
 
@@ -164,7 +171,7 @@ def main():
 	temp = {}
 	for atom in new_atoms:
 		temp[atom[0]] = (atom[1],atom[2],atom[3])
-	print('\nLIG ATOMS AFTER ROTATION')
+	print('\nLIG ATOMS AFTER ROTATION & TRANSLATION')
 	for entry in temp:
 		print('{}:{}'.format(entry,temp.get(entry)))
 
