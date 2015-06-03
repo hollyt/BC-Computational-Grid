@@ -115,7 +115,7 @@ def main():
 		sys.exit(-1)
 
 	rcpt_file,lig_file,radius = args
-
+	radius = float(radius)
 
 	# key = atom id; value = list of (x,y,z) coordinates
 	# list rather than tuple becuase we need to subtract the center of mass
