@@ -30,7 +30,7 @@ class noneq_async_re_job(bedam_async_re_job):
             self._exit("TEMPERATURES needs to be specified")
         temperatures = self.keywords.get('TEMPERATURES').split(',')
         # Read in number of replicas from .inp file 
-        self.nreplicas = 
+        # self.nreplicas = 
         #executive file's directory
         if self.keywords.get('JOB_TRANSPORT') is 'SSH':
             if self.keywords.get('EXEC_DIRECTORY') is None:
@@ -69,65 +69,6 @@ class noneq_async_re_job(bedam_async_re_job):
         ofile = self._openfile("r%d/state.history" % replica, "a")
         ofile.write("%d %d %s %s\n" % (cycle, stateid, lambd, temperature))
         ofile.close()
-
-    def _doExchange_pair(self,repl_a,repl_b):
-        """
-        Performs exchange of lambdas for BEDAM replica exchange.
-        """
-        kb = 0.0019872041
-
-        cycle_a = self.status[repl_a]['cycle_current']
-        sid_a = self.status[repl_a]['stateid_current']
-        lambda_a = float(self.stateparams[sid_a]['lambda'])
-        temperature_a = float(self.stateparams[sid_a]['temperature'])
-        # u_a: binding energy of replica a
-        # h_a: total energy of replica a (includes kinetic energy as we are not
-        #      doing velocity rescaling here)
-        (u_a,h_a) = self._extractLast_BindingEnergy_TotalEnergy(repl_a,cycle_a)
-        (u_a,h_a) = (float(u_a),float(h_a))
-
-        cycle_b = self.status[repl_b]['cycle_current']
-        sid_b = self.status[repl_b]['stateid_current']
-        lambda_b = float(self.stateparams[sid_b]['lambda'])
-        temperature_b = float(self.stateparams[sid_b]['temperature'])
-        (u_b,h_b) = self._extractLast_BindingEnergy_TotalEnergy(repl_b,cycle_b)
-        (u_b,h_b) = (float(u_b),float(h_b))
-
-        # Acceptance criterion is based on exp(-Delta) where
-        #  Delta = -(beta_b - beta_a)*[H_b-H_a] - (lmbd_b - lmbd_a)[beta_a*u_b-beta_b*u_a]
-        # To derive this start from the Boltzmann weight exp[-F(x|lambda,beta)]
-        # where F(x|lambda,beta) = beta*[H_0(x)+lambda*u(x)], set up the usual
-        # Metropolis exchange rules noticing that:
-        #  H_b(x_a) = H_a(x_a) + (lmbd_b - lmbd_a)*u(x_a)
-
-        beta_a = 1./(kb*temperature_a)
-        beta_b = 1./(kb*temperature_b)
-        dl = lambda_b - lambda_a
-        du = beta_a*u_b - beta_b*u_a
-        db = beta_b - beta_a
-        dh = h_b - h_a
-        delta = -dl*du - db*dh
-
-        if self.keywords.get('VERBOSE') == "yes":
-            self.logger.info("Pair Info")
-            self.logger.info("%d %f %f %f %f", repl_a, lambda_a, u_a, beta_a, h_a)
-            self.logger.info("%d %f %f %f %f", repl_b, lambda_b, u_b, beta_b, h_b)
-            self.logger.info("dl = %f du = %f dh = %f delta = %f", dl, du, dh, delta)
-
-        csi = random.random()
-        if math.exp(-delta) > csi:
-            status_func = lambda val: self.status[val]['stateid_current']
-
-            if self.keywords.get('VERBOSE') == "yes":
-                self.logger.info("Accepted %f %f", math.exp(-delta), csi)
-                self.logger.info("%s %s", status_func(repl_a), status_func(repl_b))
-            self.status[repl_a]['stateid_current'] = sid_b
-            self.status[repl_b]['stateid_current'] = sid_a
-            if self.keywords.get('VERBOSE') == "yes":
-                self.logger.info("%s %s", status_func(repl_a), status_func(repl_b))
-        else:
-            if self.keywords.get('VERBOSE') == "yes":
-                self.logger.info("Rejected %f %f", math.exp(-delta), csi)
 
     def _extractLast_lambda_BindingEnergy_TotalEnergy(self,repl,cycle):
         """
