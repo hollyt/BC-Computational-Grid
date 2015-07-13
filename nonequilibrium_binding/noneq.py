@@ -29,8 +29,8 @@ class noneq_async_re_job(bedam_async_re_job):
         if self.keywords.get('TEMPERATURES') is None:
             self._exit("TEMPERATURES needs to be specified")
         temperatures = self.keywords.get('TEMPERATURES').split(',')
-        # Read in number of replicas from .inp file 
-        # self.nreplicas = 
+        # self.nreplicas should have already been specified from the .cntl
+	# file and read in from the async_re superclass 
         #executive file's directory
         if self.keywords.get('JOB_TRANSPORT') is 'SSH':
             if self.keywords.get('EXEC_DIRECTORY') is None:
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     print ""
     sys.stdout.flush()
 
-    rx = bedamtempt_async_re_job(commandFile, options=None)
+    rx = noneq_async_re_job(commandFile, options=None)
 
     rx.setupJob()
 
