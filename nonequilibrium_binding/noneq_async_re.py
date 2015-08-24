@@ -1,4 +1,4 @@
-''' APPLICATION for nonequilibrium binding using the ASyncRE software.'''
+''' APPLICATION for nonequilibrium binding using the ASyncRE software & IMPACT.'''
 
 import sys
 import time
@@ -49,30 +49,21 @@ class noneq_async_re_job(bedam_async_re_job):
 
         template = "%s.inp" % basename
         inpfile = "r%d/%s_%d.inp" % (replica, basename, cycle)
-
-        #lambd = self.stateparams[stateid]['lambda']
-        #temperature = self.stateparams[stateid]['temperature']
-        # read template buffer
+        
+	# read template buffer
         tfile = self._openfile(template, "r")
         tbuffer = tfile.read()
         tfile.close()
         # make modifications
         tbuffer = tbuffer.replace("@n@",str(cycle))
         tbuffer = tbuffer.replace("@nm1@",str(cycle-1))
-        # Not needed for noneq?
-	#tbuffer = tbuffer.replace("@lambda@",lambd)
-        #tbuffer = tbuffer.replace("@temperature@",temperature)
         # write out
         ofile = self._openfile(inpfile, "w")
         ofile.write(tbuffer)
         ofile.close()
 
-	''' Not needed for noneq?
-        # update the history status file
-        ofile = self._openfile("r%d/state.history" % replica, "a")
-        ofile.write("%d %d %s %s\n" % (cycle, stateid, lambd, temperature))
-        ofile.close()
-	'''
+    def _doExchange_pair(self,repl_a,repl_b):
+	pass
 
     def _extractLast_lambda_BindingEnergy_TotalEnergy(self,repl,cycle):
         """
@@ -91,7 +82,6 @@ class noneq_async_re_job(bedam_async_re_job):
         return (datai[nr-1][nf-2],datai[nr-1][nf-1],datai[nr-1][2])
 
     def print_status(self):
-	# Don't need this for noneq
 	pass
 
     def _getPot(self,repl,cycle):
