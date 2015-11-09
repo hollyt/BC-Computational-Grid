@@ -1,4 +1,4 @@
-''' APPLICATION for nonequilibrium binding using the ASyncRE software & IMPACT.'''
+''' APPLICATION for nonequilibrium binding using the ASyncRE software.'''
 
 import sys
 import time
@@ -14,49 +14,55 @@ class noneq_async_re_job(bedam_async_re_job):
 
     def _checkInput(self):
         async_re._checkInput(self)
-        # Make sure this is the correct app 
         if self.keywords.get('RE_TYPE') != 'NONEQ':
             self._exit("RE_TYPE is not NONEQ")
-        # NONEQ runs with IMPACT
+        
         if self.keywords.get('ENGINE') != 'IMPACT':
             self._exit("ENGINE is not IMPACT")
-        # Input files
+        
         self.extfiles = self.keywords.get('ENGINE_INPUT_EXTFILES')
         if not (self.extfiles is None):
             if self.extfiles != '':
                 self.extfiles = self.extfiles.split(',')
-        # List of temperatures
+        
         if self.keywords.get('TEMPERATURES') is None:
             self._exit("TEMPERATURES needs to be specified")
         temperatures = self.keywords.get('TEMPERATURES').split(',')
-	# self.nreplicas should have already been specified from the .cntl
-	# file and read in from the async_re superclass
-        #executive file's directory
+        
         if self.keywords.get('JOB_TRANSPORT') is 'SSH':
             if self.keywords.get('EXEC_DIRECTORY') is None:
                 self._exit("EXEC DIRECTORY needs to be specified")
 
+        if self.keywords.get('TOTAL_STEPS') is not None:
+            self.total_steps = int(self.keywords.get('TOTAL_STEPS'))
+        
+        if self.keywords.get('NUM_CHUNKS') is not None:
+            self.num_chunks = int(self.keywords.get('NUM_CHUNKS'))
+
+    def _buildBEDAMStates(self,lambads,temperatures):
+	pass
 
     def _buildInpFile(self, replica):
         """
         Builds input file for a BEDAM replica based on template input file
         BASENAME.inp for the specified replica at lambda=lambda[stateid] for the
-        specified cycle.
+        specified chunk.
         """
         basename = self.basename
         stateid = self.status[replica]['stateid_current']
-        cycle = self.status[replica]['cycle_current']
+        chunk = self.status[replica]['chunk_current']
 
         template = "%s.inp" % basename
-        inpfile = "r%d/%s_%d.inp" % (replica, basename, cycle)
-        
-	# read template buffer
+        inpfile = "r%d/%s_%d.inp" % (replica, basename, chunk)
+
+        # read template buffer
         tfile = self._openfile(template, "r")
         tbuffer = tfile.read()
         tfile.close()
         # make modifications
-        tbuffer = tbuffer.replace("@n@",str(cycle))
-        tbuffer = tbuffer.replace("@nm1@",str(cycle-1))
+        tbuffer = tbuffer.replace("@n@",str(chunk))
+        tbuffer = tbuffer.replace("@nm1@",str(chunk-1))
+        tbuffer = tbuffer.replace("@ss@",str((chunk-1)*(self.total_steps/self.num_chunks) + 1))
         # write out
         ofile = self._openfile(inpfile, "w")
         ofile.write(tbuffer)
@@ -65,11 +71,11 @@ class noneq_async_re_job(bedam_async_re_job):
     def _doExchange_pair(self,repl_a,repl_b):
 	pass
 
-    def _extractLast_lambda_BindingEnergy_TotalEnergy(self,repl,cycle):
+    def _extractLast_lambda_BindingEnergy_TotalEnergy(self,repl,chunk):
         """
         Extracts binding energy from Impact output
         """
-        output_file = "r%s/%s_%d.out" % (repl,self.basename,cycle)
+        output_file = "r%s/%s_%d.out" % (repl,self.basename,chunk)
         datai = self._getImpactData(output_file)
         nf = len(datai[0])
         nr = len(datai)
@@ -84,8 +90,8 @@ class noneq_async_re_job(bedam_async_re_job):
     def print_status(self):
 	pass
 
-    def _getPot(self,repl,cycle):
-        (lmb, u, etot) = self._extractLast_lambda_BindingEnergy_TotalEnergy(repl,cycle)
+    def _getPot(self,repl,chunk):
+        (lmb, u, etot) = self._extractLast_lambda_BindingEnergy_TotalEnergy(repl,chunk)
         # removes lambda*u from etot to get e0. Note that this is the lambda from the
         # output file not the current lambda.
         e0 = float(etot) - float(lmb)*float(u)
