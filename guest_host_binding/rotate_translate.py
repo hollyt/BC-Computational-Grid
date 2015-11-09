@@ -118,8 +118,6 @@ def main():
 	radius = float(radius)
 
 	# key = atom id; value = list of (x,y,z) coordinates
-	# list rather than tuple becuase we need to subtract the center of mass
-	# from every atom later
 	lig_atoms = {}
 	rcpt_atoms = {}
 	
@@ -136,17 +134,10 @@ def main():
 	rcpt = c_rcpt.fetchall()
 	
 	# Create a dictionary atom id - tuple of coordinates so the correct coordinates
-	# can be updated later
 	for atom in lig:
 		lig_atoms[atom[0]] = [atom[1],atom[2],atom[3]]
 	for atom in rcpt:
 		rcpt_atoms[atom[0]] = [atom[1],atom[2],atom[3]]
-
-	# TESTING
-	# print lig atoms before rotation & translation to compare after rotation & translation
-	print('LIG ATOMS BEFORE ROTATION & TRANSLATION')
-	for entry in lig_atoms:
-		print('{}:{}'.format(entry,lig_atoms.get(entry)))
 
 	# find the centers of mass
 	center_mass_lig = center_of_mass(lig_atoms)
@@ -166,14 +157,6 @@ def main():
 	# Print lig atoms after rotation & translation
 	c_lig.execute('SELECT i_i_internal_atom_index, x, y, z FROM particle')
 	new_atoms = c_lig.fetchall()
-
-	# just testing
-	temp = {}
-	for atom in new_atoms:
-		temp[atom[0]] = (atom[1],atom[2],atom[3])
-	print('\nLIG ATOMS AFTER ROTATION & TRANSLATION')
-	for entry in temp:
-		print('{}:{}'.format(entry,temp.get(entry)))
 
 	lig_conn.close()
 	rcpt_conn.close()
