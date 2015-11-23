@@ -7,11 +7,11 @@ from the directory of given .dms files, and creates a new replica
 directory for each ensemble.
 """
 #TODO:
-# * add command line argument parsing for paths, number of replicas
 # * add the rest of the files needed for simulation to the replica dirs
 # * rename .dms files in format: rcpt-lig.dms
 # * clean up the creation of the lig_type dirs
 
+import argparse
 import os
 import random
 import shutil
@@ -31,17 +31,18 @@ def choose_ensemble(rcpt,lig,replica,lig_type,nreplicas):
         shutil.copy(lig_file,replica_src)
     
 def main():
-    # we only have 1 receptor (bcd) at the moment
-    rcptpath = './receptors/bcd/'
-    ligpath = './ligands/'
-    replicapath = './replicas/'
-    nreplicas = 100
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--receptor_path', type=str, default='./receptors/bcd/', help='path where receptor directories are found (default: ./receptors/bcd/')
+    parser.add_argument('--ligand_path', type=str, default='./ligands', help='path where ligand directories are found (default: ./ligands')
+    parser.add_argument('--replica_path', type=str, default='./replicas/', help='path to directory where replica directories should be placed (default: ./replicas')
+    parser.add_argument('--nreplicas', type=int, default=100, help='number of replica directories to create (default: 100)')
+    args = parser.parse_args()
 
-    os.mkdir(os.path.abspath(replicapath))
+    os.mkdir(os.path.abspath(args.replica_path))
 
-    for lig_type in os.listdir(ligpath):
+    for lig_type in os.listdir(args.ligand_path):
         # find a better way to make lig_type dir
-        choose_ensemble(rcptpath,os.path.join(ligpath,lig_type),replicapath,lig_type,nreplicas)
+        choose_ensemble(args.receptor_path,os.path.join(args.ligand_path,lig_type),args.replica_path,lig_type,args.nreplicas)
 
 if __name__ == '__main__':
     main()
