@@ -34,7 +34,6 @@ while getopts ":n:" opt; do
         cp ../bcd-${OPTARG}_restdist.dat .
         cp ../bcd-${OPTARG}_resttor.dat .
         cp ../paramstd.dat .
-        cat '~' >  $OPTARG.stat
         python ~/guest_host/rotate_translate.py bcd-${OPTARG}_rcpt.dms bcd-${OPTARG}_lig.dms 6.0
         echo "r$i done."
         cd ..
